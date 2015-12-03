@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<title>Test large data sets</title>
+<body>
+
+<h1>Data Set Generator</h1>
+<p>Please input the number of entries desired for the data set (an integer number between 0 and 500000 exclusive):</p>
+<p>
+<input id="numEntries" type=number>
+<p>
+<button type="button" onclick="calculateVals()">Calculate Values</button>
+<p>
+<p id="feedback"></p>
+<p>
+<button type="button" onclick="dispIncTable()">Show/Increment Table</button>
+<p>
+<p id="tableFeedback"></p>
+<p>
+<p id="dispTable"></p>
+<p>
+
+<script>
+// Global variables. Used to reduce passing variables via arguments.
+var listL = "";
+var DATA_SIZE = 300000;
+var DISP_NUM = 50000;
+var currPos = 0;
+
+//
+// Calculate the values
+// This function takes no arguments, but expects user input
+// for the number of values to calculate. If no user input
+// is provided, or if invalid user input is provided, the 
+// function uses the default number specified in DATA_SIZE
+// as the value. In this case it informs the user and 
+// carries on.
+//
+function calculateVals() {
+   // Get the number of entries desired
+   var entries = document.getElementById("numEntries").value;
+   document.getElementById("feedback").innerHTML = " Checking validity of input ";
+
+   if (checkValid(entries) === 1) {
+      document.getElementById("feedback").innerHTML = " Valid number of entries: " + entries;
+      calcVals(entries);
+   } else {
+      document.getElementById("feedback").innerHTML = " Invalid number of entries: " + entries + " using default: " + DATA_SIZE;
+      calcVals(DATA_SIZE);
+   }
+   // Reset the global variable currPos
+   currPos = 0;
+}
+
+//
+// Calculate values for the list.
+// This function takes one argument:
+// numE: the number of values to calculate
+//
+function calcVals(numE) {
+   listL = new Array(numE);
+   var now = new Date().getTime();
+   for (var i = 0; i < numE; i++) {
+      listL[i] = {
+         id:i,
+         timestamp:Math.round(Math.random()*now)
+      };
+   }
+}
+
+//
+// Check if the user input for the number of entries is valid.
+// To be valid, the input must be a positive, non-zero integer.
+// This function takes one argument:
+// numEntries: the number of values to calculate 
+// This function returns 1 if the numEntries is valid and 0 if it is not.
+// The function does not throw an exception because an invalid value
+// (even a non-numeric one) can be handled gracefully.
+//
+function checkValid(numEntries) {
+   var valid = 0;
+   if (numEntries > 0) {
+      if (numEntries % 1 === 0) {
+         if (numEntries <= 500000) {
+            valid = 1;
+         }
+      }
+   }
+   return valid;
+}
+
+//
+// Display the list to a table in subsets. 
+// Only load DISP_NUM elements each time.
+// This function takes no arguments.
+// It expects the listL global array to be populated. If it is not yet populated,
+// the function will print a message informing the user they need to populate the list
+// by clicking the "Calculate Values" button prior to clicking the "Show/Increment Table"
+// button and exit gracefully.
+//
+function dispIncTable() {
+   if (checkValid(listL.length) == 1)
+   {
+      var tableText = new Array();
+      var iter = -1;
+      tableText[++iter] = "<table><thead><tr><td>ID</td><td>Time</td></tr></thead><tbody>";
+      var endPos = currPos + DISP_NUM;
+      // We do not want to attempt to display past the last element
+      if (endPos >= listL.length) {
+         endPos = listL.length;
+      }
+      if (currPos >= listL.length) {
+         // We have already displayed the full content of the data. Reset to the beginning
+         endPos = DISP_NUM;
+         currPos = 0; 
+      }
+      document.getElementById("tableFeedback").innerHTML = "Displaying entries " + currPos + " through " + (endPos-1) + " of " + listL.length
+         + " (indexed from 0-" + (listL.length-1) + ")";
+      for (var i = currPos; i < endPos; i++) {
+         var data = listL[i];
+         tableText[++iter] = "<tr><td>" + data.id + "</td><td>" + data.timestamp + "</td></tr>";
+      }
+      tableText[++iter] = "</tbody></table>";
+      document.getElementById("dispTable").innerHTML = tableText.join('');
+      currPos = endPos;
+   } else {
+      // The user has not yet populated the listL array by clicking the "Calculate Values" button.
+      // Simply inform the user of their error.
+      // No need to throw an exception since this can be handled by informing the user of the problem.
+      document.getElementById("tableFeedback").innerHTML = "No values have been calculated yet. Please click the 'Calculate Values' button "
+         + "to calculate the values and then click the 'Show/Increment Table' button again.";
+   }
+}
+
+//
+// Test Plan for this code (test plan executed on Internet Explorer 11.0.9600.18097 and Firefox 30.0):
+// 1.  Enter 10000 into the text box and click "Calculate Values" to generate the values.
+// 2.  Click the "Show/Increment Table" button
+// 3.  Verify that all 10000 values are shown
+// 4.  Enter 300000 into the text box and click "Calculate Values" to generate the values.
+// 5.  Click the "Show/Increment Table" button
+// 6.  Verify that the first 50000 values are shown
+// 7.  Continue to click the "Show/Increment Table" button to verify that the remainder of the
+//     values are shown in chunks of 50000.
+// 8.  Once you have reached the final set of values, click the "Show/Increment Table" button
+//     one more time to verify that the table resets to displaying the initial set of values.
+// 9.  Repeat steps 4-8 with a random number of values (say, 149029) to verify that the values
+//     update and display only up to the new random number of values.
+//
+// Notes on implementation:
+// The following assumptions were made with this implementation:
+// 1.  No outside libraries can be used. Only those provided with default javascript. Why?
+//     Because it is unknown what plugins are available, and the default javascript executes
+//     properly across multiple browsers.
+// 2.  I cannot change the algorithm used to generate the random values. Caveat: I did make it
+//     a function that takes an argument for the size rather than a hard coded value to make
+//     testing easier.
+// 3.  Displaying 300000 records does not work properly if you display the entire set of 300000
+//     all at once. This is why the results are displayed in a paginated form. Displaying 50000
+//     records at a time does not take long either for display or for paging through all of the
+//     records so was chosen as a reasonable amount to show each time.
+// 4.  An extension that would be nice and not difficult to implement would be to modify the 
+//     dispIncTable() function so that the user could specify the range of values they want to
+//     see, or to add navigation buttons to allow the user to move both forward through the data
+//     or backward.
+// 5.  Error checking is included on the user input value to ensure that the functions behave
+//     gracefully if the user inputs unexpected data into the text box.
+// 6.  Calculation of the values is fast, it is the display of the values that is slow.
+</script>
+</body>
+</html>
