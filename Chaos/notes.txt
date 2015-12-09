@@ -1,0 +1,13 @@
+Notes for the parabolic chaos tent map/bifurcation map:
+1. Zoomed in portions are displayed in separated canvases from the initial bifurcation map to alow the user to compare the zoomed in segments against the unzoomed, complete map. This allows the fractal nature of the map to be more clearly seen.
+2. The user may change the appearance of the parabolic tent map by changing their input vertex, initial value, and number of values to calculate settings. This will not change the bifurcation map other than to move the line indicating the user selected vertex.
+3. The user may change the displayed zoomed areas simply by clicking within the bifurcation map or the zoomed bifurcation map at any point. Only the impacted zoomed map will be redrawn when the user does so.
+
+TBDs/Future enhancements:
+1. Get rid of the global variables. These are currently used to ease the use of event listeners. Once I figure out how to have an event listener pass arguments around I will remove them.
+2. Allow for dynamic resizing of the bifurcation map and tent map canvases based upon screen sizes.
+3. Break all coupling and dependencies between functions. The functions cannot currently be broken out separately from each other since they contain dependencies.
+4. Break the dependency on a correctly formatted html page (or at least improve the robustness of the design to provide more flexibility). Right now element names are hard coded into multiple methods. Those hard codings should be removed and replaced by a parameter that is passed in to the methods. Idealy, the script will discover the names of the elements itself and then use them, but I am not sure if that is entirely possible with javascript...something to look into to be sure.
+5. Allow the user to choose between a parabolic tent map and a more traditional "tent map" as the basis for the calculations. Using a "tent map" vs a parabolic tent map changes the bifurcation points that exist and modifies the bifurcation map as a result.
+6. Modify the code so that the initial bifurcation map is only redrawn if the map itself needs to change. Simply entering in updated user-specified values should not cause the bifurcation map to rerender, but should still update the location of the line that indicates the user-specified vertex value. This enhancement would improve performance by streamlining memory usage.
+7. Modify the code so that when the user selects a zoom region either in the initial bifurcation map or in the zoomed map, a box displays showing the area that is being zoomed in on.
